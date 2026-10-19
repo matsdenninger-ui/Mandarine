@@ -34,8 +34,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- MIT licensed, used to recompress images inside PDFs without losing the text layer. -->
-    <PackageReference Include="PDFsharp" Version="6.2.4" />
+    <!-- PDFsharp: recompresses images inside PDFs and merges PDFs.
+         LIZENZ: Bleibt bewusst auf 6.2.4 (MIT). Ab 6.5.0 gilt AGPL oder eine kommerzielle Lizenz –
+         NICHT aktualisieren, ohne das vorher zu klären. Exakte Version erzwingen: [6.2.4] -->
+    <PackageReference Include="PDFsharp" Version="[6.2.4]" />
   </ItemGroup>
 
 </Project>

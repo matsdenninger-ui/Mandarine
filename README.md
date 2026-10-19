@@ -97,7 +97,7 @@ src/Zytrus/
    └─ Theme.xaml / Theme.cs   Hell/Dunkel nach Windows-Einstellung
 ```
 
-Einzige externe Abhängigkeit: [PDFsharp](https://github.com/empira/PDFsharp) (MIT). Bild, Video, PDF-Rendering und OCR kommen aus Windows selbst. Lizenzhinweise: `THIRD-PARTY-NOTICES.md`.
+Einzige externe Abhängigkeit: [PDFsharp](https://github.com/empira/PDFsharp) (MIT). Bild, Video, PDF-Rendering und OCR kommen aus Windows selbst. Lizenzhinweise: `THIRD-PARTY-NOTICES.txt`.
 
 ## Einstellungen
 
@@ -113,6 +113,12 @@ Klick aufs Zitronen-Symbol unten rechts öffnet das Einstellungsfenster. Links s
 Gespeichert wird in `%APPDATA%\Zytrus\settings.json`. Beim ersten Start entfernt Zytrus die „Senden an“-Einträge und den Autostart der alten „Mandarine“-Version.
 
 Protokoll: `%LOCALAPPDATA%\Zytrus\log.txt`.
+
+## Weitergeben
+
+Zytrus darf kostenlos oder kommerziell weitergegeben werden. Bedingung der eingebauten Open-Source-Bausteine (MIT-Lizenz): **`THIRD-PARTY-NOTICES.txt` gehört immer mit dazu** – am einfachsten `Zytrus.exe` und diese Datei zusammen in ein ZIP packen. Der GitHub-Build legt beide Dateien automatisch zusammen ab.
+
+PDFsharp ist bewusst auf Version 6.2.4 festgelegt: Ab 6.5 gilt AGPL oder eine kommerzielle Lizenz.
 
 ## Grenzen
 

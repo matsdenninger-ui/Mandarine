@@ -1,33 +1,15 @@
-# Third-party notices
+# Lizenzhinweise
 
-## liquid-glass-js
+Die vollständigen Lizenzhinweise aller Bausteine, die in `Zytrus.exe` stecken, stehen in
+[`THIRD-PARTY-NOTICES.txt`](THIRD-PARTY-NOTICES.txt). Diese Datei gehört bei jeder Weitergabe
+der `.exe` dazu.
 
-The liquid glass effect in `src/Zytrus/UI/LiquidGlass.cs` is a C# port of the WebGL fragment shader from
-[liquid-glass-js](https://github.com/matsdenninger-ui/liquid-glass-js) (fork of
-[dashersw/liquid-glass-js](https://github.com/dashersw/liquid-glass-js)).
+| Baustein | Lizenz | Urheber |
+|---|---|---|
+| PDFsharp **6.2.4** (inkl. BigGustave, Public Domain) | MIT | empira Software GmbH |
+| liquid-glass-js (Glas-Effekt, nach C# portiert in `src/Zytrus/UI/LiquidGlass.cs`) | MIT | Armagan Amcalar |
+| .NET 10 Runtime, WPF, Windows Forms | MIT (+ Drittanbieter-Hinweise) | .NET Foundation and Contributors |
+| C#/WinRT, Windows-SDK-Anbindung | MIT | Microsoft Corporation |
 
-MIT License
-
-Copyright (c) 2025 Armagan Amcalar
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-## PDFsharp
-
-[PDFsharp](https://github.com/empira/PDFsharp) is used as a NuGet package under the MIT License.
+**Wichtig:** PDFsharp ab Version 6.5 steht unter AGPL oder kommerzieller Lizenz. Die Version ist in
+`src/Zytrus/Zytrus.csproj` fest auf 6.2.4 eingetragen und sollte nicht erhöht werden.
