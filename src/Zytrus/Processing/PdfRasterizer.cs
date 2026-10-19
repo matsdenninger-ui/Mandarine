@@ -88,8 +88,8 @@ internal static class PdfRasterizer
         return boxes;
     }
 
-    /// <summary>Exports every page as JPEG; returns the written files.</summary>
-    public static async Task<List<string>> ExportPagesAsJpegAsync(string source, string folder, string baseName, int dpi, int quality, CancellationToken ct)
+    /// <summary>Exports every page as JPEG or PNG; returns the written files.</summary>
+    public static async Task<List<string>> ExportPagesAsync(string source, string folder, string baseName, int dpi, bool png, int quality, CancellationToken ct)
     {
         var pdf = await OpenAsync(source);
         var files = new List<string>();
@@ -98,8 +98,8 @@ internal static class PdfRasterizer
         {
             ct.ThrowIfCancellationRequested();
             var page = await RenderPageAsync(pdf, i, dpi);
-            var path = Path.Combine(folder, $"{baseName}_Seite-{(i + 1).ToString().PadLeft(digits, '0')}.jpg");
-            File.WriteAllBytes(path, ImageCodec.EncodeJpeg(page.Image, quality));
+            var path = Path.Combine(folder, $"{baseName}_Seite-{(i + 1).ToString().PadLeft(digits, '0')}{(png ? ".png" : ".jpg")}");
+            File.WriteAllBytes(path, png ? ImageCodec.EncodePng(page.Image) : ImageCodec.EncodeJpeg(page.Image, quality));
             files.Add(path);
         }
         return files;

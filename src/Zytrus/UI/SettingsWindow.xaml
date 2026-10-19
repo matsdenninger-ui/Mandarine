@@ -105,6 +105,8 @@
                                 <ComboBoxItem Content="Strg" />
                                 <ComboBoxItem Content="Umschalt + Strg" />
                             </ComboBox>
+                            <TextBlock Text="Loslassen in der Mitte (dort erscheint die Zitrone)" Style="{StaticResource FieldLabel}" />
+                            <ComboBox x:Name="CenterBox" HorizontalAlignment="Left" MinWidth="260" />
                             <CheckBox x:Name="AllAppsCheck" Style="{StaticResource Option}" Margin="0,12,0,0"
                                       Content="In allen Programmen (sonst nur Explorer, Browser und Mail-Programme)" />
                         </StackPanel>

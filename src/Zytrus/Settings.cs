@@ -51,14 +51,19 @@ public sealed class AppSettings
 
     public DragTrigger Trigger { get; set; } = DragTrigger.Shift;
 
+    /// <summary>What happens when files are released in the middle of the fruit (where it appears).</summary>
+    public ProcessAction CenterAction { get; set; } = ProcessAction.EmailCompress;
+
     /// <summary>If false, only drags starting in the apps of DragSourceApps open the fruit.</summary>
     public bool DragFromAllApps { get; set; }
 
     /// <summary>Process names (without .exe) a drag may start in. "*" allows every app.</summary>
     public List<string> DragSourceApps { get; set; } = new()
     {
-        "explorer", "msedge", "chrome", "firefox", "brave", "opera", "vivaldi",
-        "outlook", "olk", "thunderbird", "ms-teams", "totalcmd64", "dopus"
+        "explorer", "msedge", "chrome", "firefox", "brave", "opera", "vivaldi", "arc",
+        "outlook", "olk", "thunderbird", "ms-teams", "teams", "slack", "discord", "whatsapp", "telegram",
+        "onedrive", "dropbox", "7zfm", "winrar", "totalcmd", "totalcmd64", "dopus", "acrobat", "acrord32",
+        "photos", "microsoft.photos", "lightroom", "photoshop"
     };
 
     // ---- Compression ----------------------------------------------------------------------------
@@ -104,10 +109,16 @@ public sealed class AppSettings
         GlassRefraction = Math.Clamp(GlassRefraction, 0, 2);
         GlassTint = Math.Clamp(GlassTint, 0, 0.8);
         if (!Enum.IsDefined(Variety)) Variety = CitrusVariety.Zitrone;
+        if (!Enum.IsDefined(CenterAction)) CenterAction = ProcessAction.EmailCompress;
         ZipWhenMoreThan = Math.Clamp(ZipWhenMoreThan, 1, 1000);
         Suffix ??= "";
         OutputFolder = string.IsNullOrWhiteSpace(OutputFolder) ? new AppSettings().OutputFolder : OutputFolder;
-        DragSourceApps ??= new AppSettings().DragSourceApps;
+        // New default apps are added to lists saved by older versions.
+        DragSourceApps = (DragSourceApps ?? new List<string>())
+            .Concat(new AppSettings().DragSourceApps)
+            .Where(a => !string.IsNullOrWhiteSpace(a))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
         var segments = (Segments ?? new List<ProcessAction>())
             .Where(a => Enum.IsDefined(a)).Distinct().ToList();

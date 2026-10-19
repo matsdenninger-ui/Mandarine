@@ -18,7 +18,7 @@ namespace Zytrus.UI;
 /// The citrus slice: every function is a glass segment. Two ways to use it:
 ///  • Drag mode – appears while files are dragged with the trigger key; drop a file onto a segment.
 ///  • Click mode – for "Senden an → Optionen" and the tray: files are already chosen, click a segment.
-/// The core in the middle explains the segment under the cursor; dropping there cancels.
+/// The core in the middle explains the segment under the cursor; dropping there runs the centre action.
 /// </summary>
 public partial class CitrusWindow : Window
 {
@@ -29,15 +29,18 @@ public partial class CitrusWindow : Window
     readonly DispatcherTimer _poll = new() { Interval = TimeSpan.FromMilliseconds(40) };
     readonly IReadOnlyList<string>? _clickPaths;
 
-    string[]? _dragPaths;
     bool _shown;
     bool _dragInside;
     bool _mouseWasDown;
     bool _done;
     int _glassGeneration;
+    bool _loggedThisDrag;
 
     /// <summary>Drag mode: files were dropped onto a segment.</summary>
     public event Action<string[], ProcessAction>? ActionDropped;
+
+    /// <summary>Drag mode: something was dropped but no file could be read from it.</summary>
+    public event Action? DropFailed;
 
     /// <summary>Click mode: a segment was clicked.</summary>
     public event Action<ProcessAction>? ActionChosen;
@@ -85,12 +88,12 @@ public partial class CitrusWindow : Window
         {
             var paths = _clickPaths!;
             idleTitle = paths.Count == 1 ? Path.GetFileName(paths[0].TrimEnd('\\')) : Format.Files(paths.Count);
-            idleSubtitle = "Stück anklicken · Esc schließt";
+            idleSubtitle = $"Stück anklicken · Mitte: {ActionCatalog.Get(s.CenterAction).Title} · Esc schließt";
         }
         else
         {
-            idleTitle = "Auf ein Stück ziehen";
-            idleSubtitle = "Mitte = abbrechen";
+            idleTitle = ActionCatalog.Get(s.CenterAction).Title;
+            idleSubtitle = "hier loslassen – oder auf ein Stück ziehen";
         }
 
         var segments = s.Segments.Select(a =>
@@ -100,11 +103,6 @@ public partial class CitrusWindow : Window
         });
         _view.Configure(segments, s.Variety, s.ShowLabels, idleTitle, idleSubtitle);
 
-        if (ClickMode)
-        {
-            var available = ActionRunner.AvailableActions(_clickPaths!);
-            _view.SetAvailability(available.Contains);
-        }
     }
 
     Anchor PlacementAnchor => SettingsStore.Current.Placement == CitrusPlacement.ScreenCenter
@@ -164,7 +162,7 @@ public partial class CitrusWindow : Window
         _hideTimer.Stop();
         if (_shown) return;
         _shown = true;
-        _dragPaths = null;
+        _loggedThisDrag = false;
         ApplySettings();
         _view.Hover = CitrusView.None;
         Present(cursor);
@@ -197,28 +195,34 @@ public partial class CitrusWindow : Window
     {
         _dragInside = true;
         _hideTimer.Stop();
+        if (!_loggedThisDrag)
+        {
+            _loggedThisDrag = true;
+            Log.Write($"DragEnter: allowed={e.AllowedEffects}, keys={e.KeyStates}, formats={DropData.Describe(e.Data)}");
+        }
         OnDragOver(sender, e);
     }
 
+    /// <summary>
+    /// Every file type is accepted everywhere on the fruit: on a segment that function runs, in the middle the
+    /// centre action (default: compress for e-mail). Only outside the fruit the drop is refused.
+    /// </summary>
     void OnDragOver(object sender, DragEventArgs e)
     {
         e.Handled = true;
-        if (_dragPaths == null && e.Data.GetData(DataFormats.FileDrop) is string[] paths && paths.Length > 0)
-        {
-            _dragPaths = paths;
-            var available = ActionRunner.AvailableActions(paths);
-            _view.SetAvailability(available.Contains);
-        }
-
         int hit = _view.HitTest(e.GetPosition(_view));
         _view.Hover = hit;
 
-        bool accept = _dragPaths != null && _view.IsSegmentEnabled(hit);
-        e.Effects = !accept ? DragDropEffects.None
-            : e.AllowedEffects.HasFlag(DragDropEffects.Copy) ? DragDropEffects.Copy   // never Move: originals stay put
-            : e.AllowedEffects.HasFlag(DragDropEffects.Link) ? DragDropEffects.Link
-            : DragDropEffects.None;
+        bool accept = hit != CitrusView.None && DropData.HasFiles(e.Data);
+        e.Effects = accept ? PickEffect(e.AllowedEffects) : DragDropEffects.None;
     }
+
+    /// <summary>Copy whenever possible (originals stay put); Link as the fallback some apps offer instead.</summary>
+    static DragDropEffects PickEffect(DragDropEffects allowed) =>
+        allowed.HasFlag(DragDropEffects.Copy) ? DragDropEffects.Copy
+        : allowed.HasFlag(DragDropEffects.Link) ? DragDropEffects.Link
+        : allowed == DragDropEffects.None ? DragDropEffects.Copy
+        : DragDropEffects.None;
 
     void OnDragLeave(object sender, DragEventArgs e)
     {
@@ -231,15 +235,24 @@ public partial class CitrusWindow : Window
     {
         e.Handled = true;
         int hit = _view.HitTest(e.GetPosition(_view));
-        var paths = e.Data.GetData(DataFormats.FileDrop) as string[];
-        var segment = _view.IsSegmentEnabled(hit) ? _view.SegmentAt(hit) : null;
-        e.Effects = segment != null ? DragDropEffects.Copy : DragDropEffects.None;
+        ProcessAction? action = hit == CitrusView.CenterHit
+            ? SettingsStore.Current.CenterAction
+            : _view.SegmentAt(hit)?.Action;
+
+        // Read the data now: virtual files (Outlook, browsers) are only available during the drop.
+        var paths = action != null ? DropData.ExtractFiles(e.Data) : Array.Empty<string>();
+        e.Effects = action != null && paths.Length > 0 ? PickEffect(e.AllowedEffects) : DragDropEffects.None;
+        Log.Write($"Drop: hit={hit}, action={action}, files={paths.Length}");
         HideNow();
 
-        if (segment != null && paths is { Length: > 0 })
+        if (action != null && paths.Length > 0)
         {
-            var action = segment.Action;
-            Dispatcher.InvokeAsync(() => ActionDropped?.Invoke(paths, action)); // let the drag source finish first
+            var chosen = action.Value;
+            Dispatcher.InvokeAsync(() => ActionDropped?.Invoke(paths, chosen)); // let the drag source finish first
+        }
+        else if (action != null)
+        {
+            Dispatcher.InvokeAsync(() => DropFailed?.Invoke());
         }
     }
 
@@ -260,7 +273,7 @@ public partial class CitrusWindow : Window
     void OnClick(object sender, MouseButtonEventArgs e)
     {
         int hit = _view.HitTest(e.GetPosition(_view));
-        if (hit == CitrusView.CenterHit) { Dismiss(); return; }
+        if (hit == CitrusView.CenterHit) { Choose(SettingsStore.Current.CenterAction); return; }
         if (_view.IsSegmentEnabled(hit)) Choose(_view.SegmentAt(hit)!.Action);
     }
 

@@ -61,6 +61,8 @@ public partial class App : Application
         // Drag mode: one citrus slice that pops up whenever files are dragged with the trigger key.
         var citrus = _citrus = new CitrusWindow();
         citrus.ActionDropped += (paths, action) => jobs.Enqueue(action, paths);
+        citrus.DropFailed += () => jobs.Toast.ShowError("Keine Datei erkannt",
+            "Aus dieser Quelle kam keine lesbare Datei. Bitte die Datei zuerst speichern und dann ziehen.");
 
         var watcher = _watcher = new GlobalDragWatcher(Dispatcher);
         watcher.ShiftDragStarted += point => citrus.ShowForDrag(point);
@@ -91,6 +93,14 @@ public partial class App : Application
             jobs.Toast.ShowInfo("Zytrus ist bereit",
                 "Dateien mit gedrückter ⇧-Taste ziehen – die Zitrone erscheint. Datei auf ein Stück ziehen, fertig. " +
                 "Klick aufs Symbol unten rechts öffnet die Einstellungen.", 12);
+        }
+
+        if (IsElevated())
+        {
+            // Windows blocks drag & drop from normal programs (Explorer) into elevated ones.
+            Log.Write("Running elevated – drag & drop from Explorer will be blocked by Windows.");
+            jobs.Toast.ShowError("Zytrus läuft als Administrator",
+                "Windows blockiert dann das Hineinziehen aus dem Explorer. Bitte Zytrus normal starten (ohne „Als Administrator ausführen“).");
         }
 
         HandleArguments(e.Args, fromOtherInstance: false);
@@ -138,6 +148,19 @@ public partial class App : Application
         if (_watcher == null) return;
         if (SettingsStore.Current.DragHookEnabled) _watcher.Start();
         else _watcher.Stop();
+    }
+
+    static bool IsElevated()
+    {
+        try
+        {
+            using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
+            return new System.Security.Principal.WindowsPrincipal(identity).IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     static string[]? PickFiles()

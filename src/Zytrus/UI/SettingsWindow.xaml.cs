@@ -46,6 +46,8 @@ public partial class SettingsWindow : Window
         _preview.MouseLeave += (_, _) => _preview.Hover = CitrusView.None;
 
         BuildColorChoices();
+        foreach (var info in ActionCatalog.All)
+            CenterBox.Items.Add(new ComboBoxItem { Content = info.Title, Tag = info.Action });
         LoadValues();
         Wire();
 
@@ -76,6 +78,7 @@ public partial class SettingsWindow : Window
 
             HookCheck.IsChecked = s.DragHookEnabled;
             TriggerBox.SelectedIndex = (int)s.Trigger;
+            CenterBox.SelectedItem = CenterBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => i.Tag is ProcessAction a && a == s.CenterAction);
             AllAppsCheck.IsChecked = s.DragFromAllApps;
 
             TargetSlider.Value = s.TargetMegabytes;
@@ -311,6 +314,10 @@ public partial class SettingsWindow : Window
         HookCheck.Click += (_, _) => Change(s => s.DragHookEnabled = HookCheck.IsChecked == true);
         TriggerBox.SelectionChanged += (_, _) => Change(s => s.Trigger = (DragTrigger)Math.Max(0, TriggerBox.SelectedIndex));
         AllAppsCheck.Click += (_, _) => Change(s => s.DragFromAllApps = AllAppsCheck.IsChecked == true);
+        CenterBox.SelectionChanged += (_, _) =>
+        {
+            if (CenterBox.SelectedItem is ComboBoxItem { Tag: ProcessAction action }) Change(s => s.CenterAction = action);
+        };
 
         TargetSlider.ValueChanged += (_, e) => Change(s => s.TargetMegabytes = e.NewValue, save: false);
         SmallSlider.ValueChanged += (_, e) => Change(s => s.SmallTargetMegabytes = e.NewValue, save: false);
