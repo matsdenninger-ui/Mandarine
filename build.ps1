@@ -1,4 +1,4 @@
-﻿# Baut Mandarine als einzelne, eigenständige .exe (kein installiertes .NET auf dem Ziel-PC nötig).
+﻿# Baut Zytrus als einzelne, eigenständige .exe (kein installiertes .NET auf dem Ziel-PC nötig).
 # Aufruf:  .\build.ps1            (x64)
 #          .\build.ps1 win-arm64  (Snapdragon / ARM)
 param([string]$Runtime = "win-x64")
@@ -10,8 +10,8 @@ if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
 }
 
 $out = Join-Path $PSScriptRoot "publish\$Runtime"
-dotnet publish (Join-Path $PSScriptRoot "src\Mandarine\Mandarine.csproj") `
+dotnet publish (Join-Path $PSScriptRoot "src\Zytrus\Zytrus.csproj") `
     -c Release -r $Runtime --self-contained true -p:PublishSingleFile=true -o $out
 
 Write-Host ""
-Write-Host "Fertig: $out\Mandarine.exe" -ForegroundColor Green
+Write-Host "Fertig: $out\Zytrus.exe" -ForegroundColor Green

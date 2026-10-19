@@ -1,0 +1,178 @@
+<Window x:Class="Zytrus.UI.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Zytrus – Einstellungen" Width="980" Height="720" MinWidth="840" MinHeight="560"
+        WindowStartupLocation="CenterScreen" FontFamily="{DynamicResource Font.UI}" FontSize="13">
+    <Window.Resources>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="18,14,18,16" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+        </Style>
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,10,0,4" />
+        </Style>
+        <Style x:Key="Hint" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Opacity" Value="0.7" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <Style x:Key="Option" TargetType="CheckBox">
+            <Setter Property="Margin" Value="0,6,0,0" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="390" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Left: live preview and segment list -->
+        <DockPanel Margin="24,18,12,18">
+            <StackPanel DockPanel.Dock="Top">
+                <TextBlock Text="Deine Zitrone" FontSize="22" FontWeight="SemiBold" />
+                <TextBlock Style="{StaticResource Hint}" Margin="0,4,0,0"
+                           Text="So erscheint sie beim Ziehen mit gedrückter Taste – hier vor einem Beispiel-Hintergrund, damit du den Glas-Effekt siehst. Fahr mit der Maus über ein Stück." />
+                <Border x:Name="PreviewHost" Height="310" Margin="0,6,0,6" />
+                <TextBlock Text="Stücke" Style="{StaticResource SectionTitle}" Margin="0,0,0,2" />
+                <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,6"
+                           Text="Haken = wird angezeigt. Pfeile ändern die Reihenfolge (im Uhrzeigersinn, ab oben)." />
+            </StackPanel>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="SegmentList" />
+            </ScrollViewer>
+        </DockPanel>
+
+        <!-- Right: settings -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="12,18,24,8">
+
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Aussehen" Style="{StaticResource SectionTitle}" />
+                            <TextBlock Text="Sorte" Style="{StaticResource FieldLabel}" Margin="0,0,0,4" />
+                            <WrapPanel x:Name="ColorPanel" />
+                            <TextBlock Style="{StaticResource FieldLabel}">
+                                <Run Text="Glas – Unschärfe:" /> <Run x:Name="BlurValue" Text="5" />
+                            </TextBlock>
+                            <Slider x:Name="BlurSlider" Minimum="0" Maximum="12" TickFrequency="0.5" IsSnapToTickEnabled="True" />
+                            <TextBlock Style="{StaticResource FieldLabel}">
+                                <Run Text="Glas – Lichtbrechung am Rand:" /> <Run x:Name="RefractionValue" Text="100 %" />
+                            </TextBlock>
+                            <Slider x:Name="RefractionSlider" Minimum="0" Maximum="2" TickFrequency="0.1" IsSnapToTickEnabled="True" />
+                            <TextBlock Style="{StaticResource FieldLabel}">
+                                <Run Text="Glas – Tönung in Fruchtfarbe:" /> <Run x:Name="TintValue" Text="35 %" />
+                            </TextBlock>
+                            <Slider x:Name="TintSlider" Minimum="0" Maximum="0.8" TickFrequency="0.05" IsSnapToTickEnabled="True" />
+                            <TextBlock Style="{StaticResource FieldLabel}">
+                                <Run Text="Größe:" /> <Run x:Name="SizeValue" Text="100 %" />
+                            </TextBlock>
+                            <Slider x:Name="SizeSlider" Minimum="0.7" Maximum="1.4" TickFrequency="0.05"
+                                    IsSnapToTickEnabled="True" />
+                            <TextBlock Text="Wo erscheint sie?" Style="{StaticResource FieldLabel}" />
+                            <ComboBox x:Name="PlacementBox" HorizontalAlignment="Left" MinWidth="260">
+                                <ComboBoxItem Content="Am Mauszeiger (Mitte unter dem Cursor)" />
+                                <ComboBoxItem Content="In der Bildschirmmitte" />
+                            </ComboBox>
+                            <CheckBox x:Name="LabelsCheck" Style="{StaticResource Option}" Margin="0,12,0,0"
+                                      Content="Beschriftung unter den Symbolen anzeigen" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Auslösen" Style="{StaticResource SectionTitle}" />
+                            <CheckBox x:Name="HookCheck" Style="{StaticResource Option}" Margin="0"
+                                      Content="Zitrone beim Ziehen von Dateien anzeigen" />
+                            <TextBlock Text="Taste, die man beim Ziehen gedrückt hält" Style="{StaticResource FieldLabel}" />
+                            <ComboBox x:Name="TriggerBox" HorizontalAlignment="Left" MinWidth="260">
+                                <ComboBoxItem Content="Umschalt (⇧)" />
+                                <ComboBoxItem Content="Strg" />
+                                <ComboBoxItem Content="Umschalt + Strg" />
+                            </ComboBox>
+                            <CheckBox x:Name="AllAppsCheck" Style="{StaticResource Option}" Margin="0,12,0,0"
+                                      Content="In allen Programmen (sonst nur Explorer, Browser und Mail-Programme)" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Komprimierung" Style="{StaticResource SectionTitle}" />
+                            <TextBlock Style="{StaticResource FieldLabel}" Margin="0,0,0,4">
+                                <Run Text="Stück „E-Mail“: höchstens" /> <Run x:Name="TargetValue" Text="17 MB" FontWeight="SemiBold" />
+                            </TextBlock>
+                            <Slider x:Name="TargetSlider" Minimum="1" Maximum="25" TickFrequency="0.5" IsSnapToTickEnabled="True" />
+                            <TextBlock Style="{StaticResource Hint}"
+                                       Text="Gmail, Outlook.com, iCloud: 17 MB · Firmen-Exchange meist 6 MB. Mails werden beim Versand rund ein Drittel größer, deshalb liegt das Ziel unter dem Anbieterlimit." />
+                            <TextBlock Style="{StaticResource FieldLabel}">
+                                <Run Text="Stück „Extra klein“: höchstens" /> <Run x:Name="SmallValue" Text="6 MB" FontWeight="SemiBold" />
+                            </TextBlock>
+                            <Slider x:Name="SmallSlider" Minimum="0.5" Maximum="15" TickFrequency="0.5" IsSnapToTickEnabled="True" />
+                            <CheckBox x:Name="MetadataCheck" Style="{StaticResource Option}" Margin="0,12,0,0"
+                                      Content="Metadaten (GPS-Ort, Kamera, Autor) beim Komprimieren entfernen" />
+                            <CheckBox x:Name="HevcCheck" Style="{StaticResource Option}"
+                                      Content="Videos als HEVC speichern (kleiner, aber nicht auf jedem PC abspielbar)" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Ergebnis" Style="{StaticResource SectionTitle}" />
+                            <TextBlock Text="Speichern" Style="{StaticResource FieldLabel}" Margin="0,0,0,4" />
+                            <ComboBox x:Name="OutputBox" HorizontalAlignment="Left" MinWidth="260">
+                                <ComboBoxItem Content="Neben der Originaldatei" />
+                                <ComboBoxItem Content="Immer im festen Ordner" />
+                            </ComboBox>
+                            <TextBlock Text="Fester Ordner (auch Ausweichort, wenn neben dem Original nicht geht)" Style="{StaticResource FieldLabel}" />
+                            <DockPanel>
+                                <Button x:Name="FolderButton" DockPanel.Dock="Right" Content="Ordner wählen …" Margin="8,0,0,0" />
+                                <TextBox x:Name="FolderText" IsReadOnly="True" VerticalContentAlignment="Center" />
+                            </DockPanel>
+                            <TextBlock Text="Namenszusatz (Foto.jpg → Foto_email.jpg)" Style="{StaticResource FieldLabel}" />
+                            <TextBox x:Name="SuffixText" HorizontalAlignment="Left" MinWidth="200" />
+                            <TextBlock Style="{StaticResource FieldLabel}">
+                                <Run Text="Als ZIP bündeln ab" /> <Run x:Name="ZipValue" Text="11 Dateien" FontWeight="SemiBold" />
+                            </TextBlock>
+                            <Slider x:Name="ZipSlider" Minimum="2" Maximum="40" TickFrequency="1" IsSnapToTickEnabled="True" />
+                            <CheckBox x:Name="ClipboardCheck" Style="{StaticResource Option}" Margin="0,12,0,0"
+                                      Content="In die Zwischenablage kopieren (Strg+V in Outlook fügt den Anhang ein)" />
+                            <CheckBox x:Name="RevealCheck" Style="{StaticResource Option}" Content="Im Explorer markieren" />
+                            <CheckBox x:Name="SoundCheck" Style="{StaticResource Option}" Content="Ton, wenn fertig" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="System" Style="{StaticResource SectionTitle}" />
+                            <CheckBox x:Name="AutostartCheck" Style="{StaticResource Option}" Margin="0" Content="Mit Windows starten" />
+                            <CheckBox x:Name="SendToCheck" Style="{StaticResource Option}"
+                                      Content="Im Rechtsklick-Menü unter „Senden an“ anzeigen" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <Border Grid.Row="1" Padding="12,10,24,14">
+                <DockPanel LastChildFill="False">
+                    <Button x:Name="ResetButton" DockPanel.Dock="Left" Content="Standard wiederherstellen" />
+                    <Button x:Name="DoneButton" DockPanel.Dock="Right" Content="Fertig" MinWidth="110" IsDefault="True" />
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

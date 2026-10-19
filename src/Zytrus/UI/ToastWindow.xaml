@@ -1,0 +1,61 @@
+<Window x:Class="Zytrus.UI.ToastWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Zytrus" Width="360" SizeToContent="Height"
+        ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" ShowActivated="False"
+        Background="Transparent" WindowStartupLocation="Manual"
+        FontFamily="{DynamicResource Font.UI}" UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display">
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="-1" CaptionHeight="0" ResizeBorderThickness="0"
+                      CornerRadius="0" UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Border x:Name="Root" Padding="14,12,10,12" Background="{DynamicResource Brush.Surface}">
+        <Grid x:Name="Body">
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="BodyShift" Y="0" />
+            </Grid.RenderTransform>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border x:Name="Bubble" Width="36" Height="36" CornerRadius="18" VerticalAlignment="Top"
+                    Background="{DynamicResource Brush.AccentGradient}">
+                <TextBlock x:Name="Glyph" Text="&#xE895;" FontFamily="{DynamicResource Font.Icons}" FontSize="16"
+                           Foreground="{DynamicResource Brush.OnAccent}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           RenderTransformOrigin="0.5,0.5">
+                    <TextBlock.RenderTransform>
+                        <RotateTransform x:Name="GlyphRotation" Angle="0" />
+                    </TextBlock.RenderTransform>
+                </TextBlock>
+            </Border>
+
+            <StackPanel Grid.Column="1" Margin="12,0,6,0" VerticalAlignment="Center">
+                <TextBlock x:Name="TitleText" Text="Zytrus" FontSize="14" FontWeight="SemiBold"
+                           Foreground="{DynamicResource Brush.Text}" TextTrimming="CharacterEllipsis" />
+                <TextBlock x:Name="DetailText" Text="" FontSize="12" Margin="0,2,0,0" TextWrapping="Wrap"
+                           Foreground="{DynamicResource Brush.TextSecondary}" />
+                <TextBlock x:Name="WarningText" Text="" FontSize="11.5" Margin="0,6,0,0" TextWrapping="Wrap"
+                           Foreground="{DynamicResource Brush.TextSecondary}" Visibility="Collapsed" />
+                <ProgressBar x:Name="Progress" Style="{StaticResource ThinProgress}" Margin="0,9,0,2"
+                             IsIndeterminate="True" Visibility="Collapsed" />
+            </StackPanel>
+
+            <Button x:Name="CloseButton" Grid.Column="2" Style="{StaticResource IconButton}" Content="&#xE711;"
+                    VerticalAlignment="Top" ToolTip="Schließen" />
+
+            <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal"
+                        HorizontalAlignment="Right" Margin="0,6,0,0">
+                <Button x:Name="RevealButton" Style="{StaticResource TextButton}" Content="Im Ordner zeigen" Visibility="Collapsed" />
+                <Button x:Name="CancelButton" Style="{StaticResource TextButton}" Content="Abbrechen" Visibility="Collapsed" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

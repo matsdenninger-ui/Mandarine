@@ -1,17 +1,21 @@
-# Mandarine 🍊 – Zero-Click-Komprimierung für E-Mail-Anhänge (Windows)
+# Zytrus 🍋 – Zero-Click-Dateiwerkzeug für E-Mail-Anhänge (Windows)
 
-Windows-Pendant zu „Tangerine“: läuft unsichtbar im Infobereich, und Dateien werden beim Ziehen mit gedrückter **Umschalttaste (⇧)** automatisch so verkleinert, dass sie als Anhang durchgehen. Alles passiert lokal auf dem PC – keine Cloud, keine externen APIs.
+Läuft unsichtbar im Infobereich. Ziehst du Dateien mit gedrückter **Umschalttaste (⇧)**, springt eine **Zitronenscheibe** unter dem Mauszeiger auf: hellgelber Rand mit Stängel, jede Funktion ein durchsichtiges Glas-Stück. Datei auf ein Stück ziehen – fertig. Alles passiert lokal auf dem PC, ohne Cloud.
+
+Der Glas-Effekt ist eine Portierung des Shaders aus [liquid-glass-js](https://github.com/matsdenninger-ui/liquid-glass-js): Lichtbrechung am Rand jedes Stücks, Milchglas-Unschärfe und Tönung in Fruchtfarbe – berechnet aus einem Schnappschuss des Bildschirms hinter der Zitrone.
 
 ## Bedienung
 
 | Aktion | Ergebnis |
 |---|---|
-| Dateien/Ordner mit **⇧** ziehen | Neben dem Mauszeiger erscheint eine Ablagefläche. Loslassen → **für E-Mail komprimieren** (Standard ≤ 17 MB). |
-| Mit **⇧ + Alt** loslassen | Schwebendes Menü am Cursor: Komprimieren, JPEG/PNG, Bilder → PDF, Metadaten entfernen, Schwärzen, ZIP. Tasten **1–8**, **Esc** schließt. |
-| Rechtsklick → **Senden an → Mandarine …** | Dasselbe ohne Ziehen (wird beim ersten Start eingerichtet). |
-| Klick aufs Tray-Symbol | Dateiauswahl → komprimieren. Rechtsklick: Einstellungen. |
+| Dateien/Ordner mit **⇧** ziehen | Die **Zitrone** springt unter dem Mauszeiger auf. Jedes Stück ist eine Funktion – Datei auf ein Stück ziehen und loslassen. Die Mitte erklärt das Stück unter dem Cursor; in der Mitte loslassen = abbrechen. Stücke, die nicht zu den Dateien passen, sind ausgegraut. |
+| Rechtsklick → **Senden an → Zytrus – Optionen** | Dieselbe Zitrone zum Anklicken (Tasten **1–9**, **Esc** schließt). |
+| Rechtsklick → **Senden an → Zytrus – Für E-Mail komprimieren** | Direkt komprimieren, ohne Auswahl. |
+| Klick aufs Tray-Symbol | **Einstellungen** mit Live-Vorschau. Rechtsklick: Schnellmenü. |
 
-Nach jeder Aktion: dezenter Systemton, Toast unten rechts, **Ergebnis in der Zwischenablage** (Strg+V fügt es in Outlook als Anhang ein) und **im Explorer markiert**. Originale werden nie verändert; Ergebnisse landen als `Name_email.jpg` daneben (oder in `Downloads\Mandarine`, wenn der Ordner nicht beschreibbar ist).
+Stücke ab Werk (im Uhrzeigersinn ab oben): E-Mail · Extra klein · JPEG · PNG · Bilder → PDF · Metadaten · Sensibles schwärzen · Alles schwärzen · ZIP.
+
+Nach jeder Aktion: dezenter Systemton, Toast unten rechts, **Ergebnis in der Zwischenablage** (Strg+V fügt es in Outlook als Anhang ein) und **im Explorer markiert**. Originale werden nie verändert; Ergebnisse landen als `Name_email.jpg` daneben (oder in `Downloads\Zytrus`, wenn der Ordner nicht beschreibbar ist).
 
 ## Was beim Komprimieren passiert
 
@@ -44,24 +48,24 @@ Optionale Windows-Komponenten (kostenlos, meist schon vorhanden):
 Voraussetzung: Windows 10 (1809+) oder 11, [.NET 10 SDK](https://dotnet.microsoft.com/download) (`winget install Microsoft.DotNet.SDK.10`).
 
 ```powershell
-.\build.ps1              # → publish\win-x64\Mandarine.exe (eigenständig, kein .NET auf dem Ziel-PC nötig)
+.\build.ps1              # → publish\win-x64\Zytrus.exe (eigenständig, kein .NET auf dem Ziel-PC nötig)
 .\build.ps1 win-arm64    # für ARM-Geräte
 ```
 
 Oder ohne lokale Installation: Ordner in ein GitHub-Repository hochladen – der Workflow in `.github/workflows/build.yml` baut die `.exe` für x64 und ARM64 automatisch (Reiter *Actions* → *Artifacts*).
 
-Zum Entwickeln: `src/Mandarine/Mandarine.csproj` in Visual Studio 2022/2026 oder VS Code (C# Dev Kit) öffnen und F5.
+Zum Entwickeln: `src/Zytrus/Zytrus.csproj` in Visual Studio 2022/2026 oder VS Code (C# Dev Kit) öffnen und F5.
 
 ## Projektstruktur
 
 ```
-src/Mandarine/
-├─ App.xaml(.cs)              Hintergrund-Agent: verdrahtet Tray, Hook, Ablagefläche, Jobs, „Senden an“
-├─ Settings.cs                %APPDATA%\Mandarine\settings.json
+src/Zytrus/
+├─ App.xaml(.cs)              Hintergrund-Agent: verdrahtet Tray, Hook, Zitrone, Einstellungen, Jobs
+├─ Settings.cs                %APPDATA%\Zytrus\settings.json
 ├─ SingleInstance.cs          eine Instanz pro Benutzer, Named Pipe für „Senden an“-Aufrufe
 ├─ Native/
-│  ├─ GlobalDragWatcher.cs    WH_MOUSE_LL-Hook: Maustaste + Bewegung + ⇧ → Ablagefläche zeigen
-│  ├─ WindowEffects.cs        Acrylic (Windows 11), runde Ecken, DPI-genaue Platzierung
+│  ├─ GlobalDragWatcher.cs    WH_MOUSE_LL-Hook: Maustaste + Bewegung + Auslösetaste → Zitrone zeigen
+│  ├─ WindowEffects.cs        Acrylic (Windows 11), DPI-genaue Platzierung und Bildschirmbereich
 │  ├─ ShellIntegration.cs     Senden an, Autostart, Explorer-Markierung, Zwischenablage
 │  └─ Win32.cs                P/Invoke
 ├─ Core/
@@ -69,6 +73,7 @@ src/Mandarine/
 │  ├─ ActionRunner.cs         Menü-Aktionen (Konvertieren, Metadaten, Schwärzen, ZIP)
 │  ├─ InputExpander.cs        Ordner/ZIPs → Dateiliste mit relativen Pfaden
 │  ├─ OutputPlanner.cs        Zielordner, Dateinamen, ZIP-Bündelung
+│  ├─ ActionCatalog.cs        Symbol, Kurzname und Beschreibung jeder Funktion
 │  └─ Models.cs               Datentypen, Dateiarten, Größenformat
 ├─ Processing/
 │  ├─ ImageCodec.cs           WIC/WPF: Dekodieren, sRGB, EXIF-Drehung, Skalieren, JPEG/PNG
@@ -82,48 +87,48 @@ src/Mandarine/
 │  ├─ Redactor.cs             Windows-OCR + Muster (E-Mail, IBAN, Telefon, Karten) → schwarze Balken
 │  └─ ZipBuilder.cs           ZIP, bereits komprimierte Medien werden nur gespeichert
 └─ UI/
-   ├─ DropZoneWindow.xaml     Ablagefläche am Cursor
-   ├─ ActionMenuWindow.xaml   Optionen-Menü
+   ├─ CitrusView.cs           zeichnet die Scheibe: hellgelber Rand, Stängel, Glas-Stücke, Glas-Mitte; Hover-Animation
+   ├─ LiquidGlass.cs          Port des liquid-glass-js-Shaders: Bildschirm-Schnappschuss → Brechung, Unschärfe, Tönung
+   ├─ CitrusWindow.xaml       Zitrone zum Draufziehen (und zum Anklicken bei „Senden an“)
+   ├─ SettingsWindow.xaml     Einstellungen im Windows-11-Stil mit Live-Vorschau
    ├─ ToastWindow.xaml        Fortschritt/Ergebnis
-   ├─ TrayIcon.cs             Infobereich-Symbol und Schnelleinstellungen
+   ├─ TrayIcon.cs             Infobereich-Symbol und Schnellmenü
    ├─ JobRunner.cs            Warteschlange, Zwischenablage, Explorer, Ton
    └─ Theme.xaml / Theme.cs   Hell/Dunkel nach Windows-Einstellung
 ```
 
-Einzige externe Abhängigkeit: [PDFsharp](https://github.com/empira/PDFsharp) (MIT). Bild, Video, PDF-Rendering und OCR kommen aus Windows selbst.
+Einzige externe Abhängigkeit: [PDFsharp](https://github.com/empira/PDFsharp) (MIT). Bild, Video, PDF-Rendering und OCR kommen aus Windows selbst. Lizenzhinweise: `THIRD-PARTY-NOTICES.md`.
 
 ## Einstellungen
 
-Die meisten Schalter sitzen im Tray-Menü. Alles weitere in `%APPDATA%\Mandarine\settings.json` (Tray → *Einstellungen bearbeiten*, danach *neu laden*):
+Klick aufs Zitronen-Symbol unten rechts öffnet das Einstellungsfenster. Links siehst du deine Zitrone live vor einem Beispiel-Hintergrund (damit der Glas-Effekt sichtbar ist), rechts die Optionen. Alles gilt sofort.
 
-| Schlüssel | Standard | Bedeutung |
-|---|---|---|
-| `TargetMegabytes` | 17 | Ziel für alle Anhänge zusammen |
-| `StripMetadata` | true | GPS/Kamera/Autor entfernen |
-| `Output` / `OutputFolder` | `NextToOriginal` | oder `Folder` = immer in `OutputFolder` |
-| `Suffix` | `_email` | Namenszusatz |
-| `ZipWhenMoreThan` | 10 | ab wie vielen Dateien gezippt wird |
-| `PreferHevc` | false | HEVC statt H.264 (kleiner, aber nicht überall abspielbar) |
-| `DropZone` | `NearCursor` | oder `TopCenter` (oben mittig wie eine Menüleiste) |
-| `DragSourceApps` | Explorer, Browser, Outlook … | aus welchen Programmen ⇧-Ziehen die Fläche öffnet; `"*"` = alle |
+- **Stücke:** jede Funktion an- oder abwählen und mit den Pfeilen sortieren (mindestens zwei).
+- **Aussehen:** Sorte (Zitrone, Limette, Orange, Grapefruit), Glas-Unschärfe, Lichtbrechung am Rand, Tönung, Größe, Position, Beschriftung.
+- **Auslösen:** an/aus, Taste beim Ziehen (⇧, Strg oder ⇧+Strg), nur Explorer/Browser/Mail oder alle Programme.
+- **Komprimierung:** Limit für „E-Mail“ (17 MB) und „Extra klein“ (6 MB), Metadaten entfernen, Videos als HEVC.
+- **Ergebnis:** neben dem Original oder fester Ordner, Namenszusatz, ab wie vielen Dateien gezippt wird, Zwischenablage, Explorer, Ton.
+- **System:** mit Windows starten, „Senden an“-Einträge.
 
-Protokoll: `%LOCALAPPDATA%\Mandarine\log.txt`.
+Gespeichert wird in `%APPDATA%\Zytrus\settings.json`. Beim ersten Start entfernt Zytrus die „Senden an“-Einträge und den Autostart der alten „Mandarine“-Version.
+
+Protokoll: `%LOCALAPPDATA%\Zytrus\log.txt`.
 
 ## Grenzen
 
 - Anhänge, die man direkt **aus Outlook** zieht, sind virtuelle Dateien (kein Dateipfad) – erst speichern, dann ziehen.
 - .7z/.rar werden unverändert übernommen (nur ZIP wird neu gepackt).
 - Schwärzen basiert auf Texterkennung: Ergebnis vor dem Versand kurz ansehen. Geschwärzte PDFs sind Bild-PDFs, damit unter den Balken wirklich nichts mehr steht.
-- Ein Video, das selbst bei ~220 kbit/s nicht ins Limit passt, wird nicht verunstaltet – Mandarine meldet das und empfiehlt einen Freigabe-Link.
+- Ein Video, das selbst bei ~220 kbit/s nicht ins Limit passt, wird nicht verunstaltet – Zytrus meldet das und empfiehlt einen Freigabe-Link.
 
 ## Testliste nach dem ersten Build
 
 Der Code wurde ohne Windows-Compiler geschrieben; bitte einmal durchgehen:
 
-1. Start → Tray-Symbol und Willkommens-Toast erscheinen; Windows 11 zeigt Acrylic-Hintergrund, Windows 10 eine helle Fläche.
-2. Im Explorer 3 Fotos markieren, ziehen, ⇧ drücken → Ablagefläche am Cursor; loslassen → Toast, Strg+V in Outlook fügt sie ein.
+1. Start → Tray-Symbol und Willkommens-Toast erscheinen. Klick aufs Symbol → Einstellungen mit Zitronen-Vorschau; Glas-Regler ändern die Vorschau.
+2. Im Explorer 3 Fotos markieren, ziehen, ⇧ drücken → Zitrone unter dem Cursor, die Stücke zeigen den Hintergrund verschwommen und am Rand gebrochen; auf „E-Mail“ loslassen → Toast, Strg+V in Outlook fügt sie ein.
 3. iPhone-Foto (.heic) und ein hochkant aufgenommenes JPEG: Ergebnis steht richtig herum, Eigenschaften → Details zeigen kein GPS mehr.
 4. Hochkant-Handyvideo (> 25 MB): Ergebnis-MP4 liegt unter dem Limit und wird **aufrecht** abgespielt.
 5. Gescannte PDF (> 25 MB) und eine PowerPoint mit vielen Fotos.
-6. Mit ⇧ + Alt loslassen → Menü; *Sensible Daten schwärzen* auf einem Screenshot mit E-Mail-Adresse.
-7. Rechtsklick → Senden an → *Mandarine – Optionen*.
+6. Screenshot mit E-Mail-Adresse auf „Sensibles schwärzen“ ziehen.
+7. Rechtsklick → Senden an → *Zytrus – Optionen*.
